@@ -2725,12 +2725,14 @@ template <class, class>
 struct transition_ea;
 template <class TEvent>
 struct event {
-  template <class T, BOOST_SML_DETAIL_REQUIRES(concepts::callable<bool, T>::value)>
-  constexpr auto operator[](const T &t) const {
+  template <class T>
+  constexpr auto operator[](const T &t) const
+      -> aux::enable_if_t<concepts::callable<bool, T>::value, transition_eg<event, aux::zero_wrapper<T>>> {
     return transition_eg<event, aux::zero_wrapper<T>>{*this, aux::zero_wrapper<T>{t}};
   }
-  template <class T, BOOST_SML_DETAIL_REQUIRES(concepts::callable<void, T>::value)>
-  constexpr auto operator/(const T &t) const {
+  template <class T>
+  constexpr auto operator/(const T &t) const
+      -> aux::enable_if_t<concepts::callable<void, T>::value, transition_ea<event, aux::zero_wrapper<T>>> {
     return transition_ea<event, aux::zero_wrapper<T>>{*this, aux::zero_wrapper<T>{t}};
   }
   constexpr auto operator()() const { return TEvent{}; }
@@ -2759,12 +2761,14 @@ struct state_impl {
   constexpr auto operator+(const T &t) const {
     return transition<TState, T>{static_cast<const TState &>(*this), t};
   }
-  template <class T, BOOST_SML_DETAIL_REQUIRES(concepts::callable<bool, T>::value)>
-  constexpr auto operator[](const T &t) const {
+  template <class T>
+  constexpr auto operator[](const T &t) const
+      -> aux::enable_if_t<concepts::callable<bool, T>::value, transition_sg<TState, aux::zero_wrapper<T>>> {
     return transition_sg<TState, aux::zero_wrapper<T>>{static_cast<const TState &>(*this), aux::zero_wrapper<T>{t}};
   }
-  template <class T, BOOST_SML_DETAIL_REQUIRES(concepts::callable<void, T>::value)>
-  constexpr auto operator/(const T &t) const {
+  template <class T>
+  constexpr auto operator/(const T &t) const
+      -> aux::enable_if_t<concepts::callable<void, T>::value, transition_sa<TState, aux::zero_wrapper<T>>> {
     return transition_sa<TState, aux::zero_wrapper<T>>{static_cast<const TState &>(*this), aux::zero_wrapper<T>{t}};
   }
 };
