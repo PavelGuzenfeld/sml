@@ -10,6 +10,7 @@
 // not in the sub-SM's events_ids_t, avoiding unnecessary template instantiations
 // that inflate binary size.
 //
+// cppcheck-suppress missingIncludeSystem
 #include <boost/sml.hpp>
 
 namespace sml = boost::sml;
