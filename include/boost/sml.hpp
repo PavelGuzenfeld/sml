@@ -869,6 +869,14 @@ template <class R, class T, int N>
 constexpr R get_id(type_id_type<N, T> *) {
   return static_cast<R>(N);
 }
+template <class R, class T, int N>
+constexpr R get_id_safe(type_id_type<N, T> *) {
+  return static_cast<R>(N);
+}
+template <class R, class T>
+constexpr R get_id_safe(...) {
+  return static_cast<R>(-1);
+}
 template <template <class...> class, class T>
 struct is : false_type {};
 template <template <class...> class T, class... Ts>
@@ -1595,8 +1603,11 @@ struct get_state_mapping<sm<T>, TMappings, TUnexpected> {
   struct type : sub_sm_mapping {
     template <class TEvent, class TSm, class TDeps, class TSubs>
     constexpr static bool execute(const TEvent& event, TSm& sm, TDeps& deps, TSubs& subs, typename TSm::state_t& current_state) {
-      return sub_sm_mapping::template execute<TEvent, TSm, TDeps, TSubs>(event, sm, deps, subs, current_state) ||
-             fallback_event_mapping::template execute<TEvent, TSm, TDeps, TSubs>(event, sm, deps, subs, current_state);
+      const auto sub_handled = sub_sm_mapping::template execute<TEvent, TSm, TDeps, TSubs>(event, sm, deps, subs, current_state);
+      if (sub_handled && !sub_sm<sm_impl<T>>::get(&subs).is_terminated()) {
+        return true;
+      }
+      return fallback_event_mapping::template execute<TEvent, TSm, TDeps, TSubs>(event, sm, deps, subs, current_state) || sub_handled;
     }
   };
 };
@@ -2265,15 +2276,15 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
   }
   constexpr bool is_terminated() const { return is_terminated_impl(aux::make_index_sequence<regions>{}); }
   constexpr bool is_terminated_impl(aux::index_sequence<0>) const {
-    return current_state_[0] == aux::get_id<state_t, terminate_state>((states_ids_t *)0);
+    return current_state_[0] == aux::get_id_safe<state_t, terminate_state>((states_ids_t *)0);
   }
   template <int... Ns>
   constexpr bool is_terminated_impl(aux::index_sequence<Ns...>) const {
 #if defined(__cpp_fold_expressions)
-    return ((current_state_[Ns] == aux::get_id<state_t, terminate_state>((states_ids_t *)0)) && ...);
+    return ((current_state_[Ns] == aux::get_id_safe<state_t, terminate_state>((states_ids_t *)0)) && ...);
 #else
     auto result = true;
-    (void)aux::swallow{0, (result &= current_state_[Ns] == aux::get_id<state_t, terminate_state>((states_ids_t *)0))...};
+    (void)aux::swallow{0, (result &= current_state_[Ns] == aux::get_id_safe<state_t, terminate_state>((states_ids_t *)0))...};
     return result;
 #endif
   }
