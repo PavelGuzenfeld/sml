@@ -112,4 +112,9 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_580_process_events.cpp)
   add_test(test_issue_580_process_events test_issue_580_process_events)
 endif()
 
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_685_transitions_sub_bloat.cpp)
+  add_executable(test_issue_685_transitions_sub_bloat issue_685_transitions_sub_bloat.cpp)
+  add_test(test_issue_685_transitions_sub_bloat test_issue_685_transitions_sub_bloat)
+endif()
+
 add_subdirectory(errors)
