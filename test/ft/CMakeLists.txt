@@ -127,4 +127,9 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_643_clear_defer_action.cpp)
   add_test(test_issue_643_clear_defer_action test_issue_643_clear_defer_action)
 endif()
 
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_622_any_state_nested.cpp)
+  add_executable(test_issue_622_any_state_nested issue_622_any_state_nested.cpp)
+  add_test(test_issue_622_any_state_nested test_issue_622_any_state_nested)
+endif()
+
 add_subdirectory(errors)
