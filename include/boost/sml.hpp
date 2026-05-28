@@ -1457,9 +1457,19 @@ struct transitions_sub<sm<Tsm>, T, Ts...> {
 };
 template <class Tsm>
 struct transitions_sub<sm<Tsm>> {
-  template <class TEvent, class SM, class TDeps, class TSubs>
+  template <class TEvent, class SM, class TDeps, class TSubs,
+            BOOST_SML_DETAIL_REQUIRES(aux::is_base_of<get_generic_t<TEvent>, typename sm_impl<Tsm>::events_ids_t>::value ||
+                                      aux::is_base_of<get_mapped_t<TEvent>, typename sm_impl<Tsm>::events_ids_t>::value ||
+                                      aux::is_base_of<entry_exit, TEvent>::value)>
   constexpr static bool execute(const TEvent &event, SM &, TDeps &deps, TSubs &subs, typename SM::state_t &) {
     return sub_sm<sm_impl<Tsm>>::get(&subs).process_event(event, deps, subs);
+  }
+  template <class TEvent, class SM, class TDeps, class TSubs,
+            BOOST_SML_DETAIL_REQUIRES(!aux::is_base_of<get_generic_t<TEvent>, typename sm_impl<Tsm>::events_ids_t>::value &&
+                                      !aux::is_base_of<get_mapped_t<TEvent>, typename sm_impl<Tsm>::events_ids_t>::value &&
+                                      !aux::is_base_of<entry_exit, TEvent>::value)>
+  constexpr static bool execute(const TEvent &, SM &, TDeps &, TSubs &, typename SM::state_t &) {
+    return false;
   }
   template <class, class SM, class TDeps, class TSubs>
   constexpr static bool execute(const anonymous &, SM &, TDeps &deps, TSubs &subs, typename SM::state_t &) {
