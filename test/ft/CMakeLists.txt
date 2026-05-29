@@ -117,4 +117,9 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_685_transitions_sub_bloat.cpp)
   add_test(test_issue_685_transitions_sub_bloat test_issue_685_transitions_sub_bloat)
 endif()
 
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_253_defer_clear_on_exit.cpp)
+  add_executable(test_issue_253_defer_clear_on_exit issue_253_defer_clear_on_exit.cpp)
+  add_test(test_issue_253_defer_clear_on_exit test_issue_253_defer_clear_on_exit)
+endif()
+
 add_subdirectory(errors)
