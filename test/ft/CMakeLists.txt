@@ -122,4 +122,9 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_253_defer_clear_on_exit.cpp)
   add_test(test_issue_253_defer_clear_on_exit test_issue_253_defer_clear_on_exit)
 endif()
 
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_643_clear_defer_action.cpp)
+  add_executable(test_issue_643_clear_defer_action issue_643_clear_defer_action.cpp)
+  add_test(test_issue_643_clear_defer_action test_issue_643_clear_defer_action)
+endif()
+
 add_subdirectory(errors)
