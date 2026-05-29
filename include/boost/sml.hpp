@@ -2780,6 +2780,12 @@ struct defer : action_base {
     }
   }
 };
+struct clear_defer : action_base {
+  template <class TEvent, class Tsm, class TDeps, class TSubs>
+  constexpr void operator()(const TEvent &, Tsm &sm, TDeps &, TSubs &) const {
+    sm.clear_deferred_events();
+  }
+};
 }  // namespace actions
 }  // namespace front
 using testing = back::policies::testing;
@@ -3512,6 +3518,7 @@ constexpr auto operator""_e() {
 BOOST_SML_DETAIL_UNUSED static front::state<back::terminate_state> X;
 BOOST_SML_DETAIL_UNUSED static front::history_state H;
 BOOST_SML_DETAIL_UNUSED static front::actions::defer defer;
+BOOST_SML_DETAIL_UNUSED static front::actions::clear_defer clear_defer;
 BOOST_SML_DETAIL_UNUSED static front::actions::process process;
 BOOST_SML_DETAIL_UNUSED static front::state<class SML_EVAL> eval;
 template <class... Ts, BOOST_SML_DETAIL_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
