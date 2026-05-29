@@ -2286,6 +2286,11 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
   defer_flag_t defer_again_ = defer_flag_t{};
   typename defer_t::const_iterator defer_it_{};
   typename defer_t::const_iterator defer_end_{};
+  constexpr void clear_deferred_events() { clear_deferred_impl_(aux::integral_constant<bool, !aux::is_same<defer_t, no_policy>::value>{}); }
+
+ private:
+  constexpr void clear_deferred_impl_(aux::false_type) {}
+  constexpr void clear_deferred_impl_(aux::true_type) { defer_.clear(); }
 };
 template <class>
 struct get_explicit_deps {
@@ -3171,7 +3176,7 @@ template <class T, class TSubs, class... Ts, class... THs>
 constexpr void update_composite_states(TSubs &subs, aux::true_type, const aux::type_list<THs...> &) {
   using state_t = typename T::state_t;
   auto &sm = back::sub_sm<T>::get(&subs);
-  (void)sm;
+  sm.clear_deferred_events();
 #if defined(__cpp_fold_expressions)
   ((sm.current_state_[aux::get_id<state_t, THs>((typename T::initial_states_ids_t *)0)] =
         aux::get_id<state_t, THs>((typename T::states_ids_t *)0)),
@@ -3206,7 +3211,9 @@ constexpr void recurse_composite(TSubs &subs, aux::true_type);
 
 template <class T, class TSubs, class... Ts>
 constexpr void update_composite_states(TSubs &subs, aux::false_type, Ts &&...) {
-  back::sub_sm<T>::get(&subs).initialize(typename T::initial_states_t{});
+  auto &sm = back::sub_sm<T>::get(&subs);
+  sm.initialize(typename T::initial_states_t{});
+  sm.clear_deferred_events();
 
   aux::for_each(typename T::initial_states_t{},
                 [&](auto state_identity){
